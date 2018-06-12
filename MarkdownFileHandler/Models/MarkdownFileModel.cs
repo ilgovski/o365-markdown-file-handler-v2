@@ -26,6 +26,8 @@
 namespace MarkdownFileHandler.Models
 {
     using System;
+    using System.IO;
+    using System.Diagnostics;
     using System.Web.Mvc;
 
     public class MarkdownFileModel
@@ -56,31 +58,59 @@ namespace MarkdownFileHandler.Models
             return new MarkdownFileModel(parameters) { ErrorMessage = ex.Message, ReadOnly = true };
         }
 
-        public static MarkdownFileModel GetReadOnlyModel(FileHandlerActivationParameters parameters, string filename, string markdownContent)
+        public static MarkdownFileModel GetReadOnlyModel(FileHandlerActivationParameters parameters, string filename, string markdownContent, string filepath)
         {
             return new MarkdownFileModel(parameters)
             {
                 MarkdownFileContent = markdownContent,
-                HtmlFileContent = ConvertMarkdowntoHtml(markdownContent),
+                HtmlFileContent = ConvertMarkdowntoHtml(markdownContent, filepath),
                 Filename = filename,
                 ReadOnly = true
             };
         }
 
-        public static MarkdownFileModel GetWriteableModel(FileHandlerActivationParameters parameters, string filename, string markdownContent)
+        public static MarkdownFileModel GetWriteableModel(FileHandlerActivationParameters parameters, string filename, string markdownContent, string filepath)
         {
             return new MarkdownFileModel(parameters)
             {
                 MarkdownFileContent = markdownContent,
-                HtmlFileContent = ConvertMarkdowntoHtml(markdownContent),
+                HtmlFileContent = ConvertMarkdowntoHtml(markdownContent, filepath),
                 Filename = filename,
                 ReadOnly = false
             };
         }
 
-        private static MvcHtmlString ConvertMarkdowntoHtml(string markdownContent)
+        private static MvcHtmlString ConvertMarkdowntoHtml(string markdownContent, string filepath)
         {
-            return new MvcHtmlString(new MarkdownFile(markdownContent).TransformToHtml());
+            // convert docx to html
+            string origdirname = Path.GetDirectoryName(filepath);
+            string origfilename = Path.GetFileName(filepath);
+
+            ExecuteCommand(String.Format("/c cd \"{0}\" && soffice -headless -convert-to xhtml \"{1}\"", origdirname, origfilename));
+
+            // read html file
+            string htmlfilepath = filepath.Replace(".docx", ".xhtml");
+            string html = "An error occured";
+
+            if (File.Exists(htmlfilepath))
+            {
+                html = File.ReadAllText(htmlfilepath);
+
+                // temporary solution: replace <a>
+                html = html.Replace("<a ", "<span ").Replace("</a>", "</span>");
+            }
+
+            return new MvcHtmlString(html);
+        }
+
+        private static void ExecuteCommand(string cmd)
+        {
+            ProcessStartInfo cmdsi = new ProcessStartInfo("cmd.exe");
+            cmdsi.Arguments = cmd;
+
+            Process proc = Process.Start(cmdsi);
+            proc.WaitForExit();
+            proc.Close();
         }
     }
 }

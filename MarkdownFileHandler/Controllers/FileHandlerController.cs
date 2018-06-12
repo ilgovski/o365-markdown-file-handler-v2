@@ -200,19 +200,31 @@ namespace MarkdownFileHandler.Controllers
 
             // Get file content
             FileData results = null;
+            string filepath = "";
             try
             {
                 UriBuilder downloadUrlBuilder = new UriBuilder(input.ItemUrls.First());
                 downloadUrlBuilder.Path += "/content";
 
                 results = await HttpHelper.Default.DownloadFileAsync(downloadUrlBuilder.ToString(), accessToken);
+
+                // download file
+                filepath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".docx");
+
+                Stream stream = await HttpHelper.Default.GetStreamContentForUrlAsync(downloadUrlBuilder.ToString(), accessToken);
+                FileStream file = System.IO.File.Create(filepath);
+
+                stream.CopyTo(file);
+
+                file.Close();
+                stream.Close();
             }
             catch (Exception ex)
             {
                 return MarkdownFileModel.GetErrorModel(input, ex);
             }
 
-            return MarkdownFileModel.GetWriteableModel(input, results.Filename, results.Content);
+            return MarkdownFileModel.GetWriteableModel(input, results.Filename, results.Content, filepath);
         }
     }
 }
