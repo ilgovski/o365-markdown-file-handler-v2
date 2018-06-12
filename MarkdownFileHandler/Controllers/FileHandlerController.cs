@@ -28,8 +28,13 @@ namespace MarkdownFileHandler.Controllers
     using MarkdownFileHandler;
     using MarkdownFileHandler.Models;
     using System;
+    using System.Configuration;
     using System.IO;
     using System.Linq;
+    using System.Net;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.Text;
     using System.Threading.Tasks;
     using System.Web;
     using System.Web.Hosting;
@@ -196,6 +201,22 @@ namespace MarkdownFileHandler.Controllers
             catch (Exception ex)
             {
                 return MarkdownFileModel.GetErrorModel(input, ex);
+            }
+
+            // Check user's permissions
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri(ConfigurationManager.AppSettings["sc:ApiServer"]);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Add("Api-Key", ConfigurationManager.AppSettings["sc:ApiKey"]);
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "api/v2/office365/isAllowed");
+            request.Content = new StringContent("{\"email\":\"" + input.UserId + "\"}", Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = await client.SendAsync(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return MarkdownFileModel.GetErrorModel(input, "Access Denied");
             }
 
             // Get file content
