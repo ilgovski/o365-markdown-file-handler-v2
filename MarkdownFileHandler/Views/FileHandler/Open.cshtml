@@ -1,6 +1,6 @@
 ﻿@model MarkdownFileHandler.Models.MarkdownFileModel
 @{
-    ViewBag.Title = Model.Filename + " - Markdown Editor";
+    ViewBag.Title = Model.Filename + " - " + System.Configuration.ConfigurationManager.AppSettings["sc:Brand"];
     Layout = "~/Views/Shared/_LayoutFileHandler.cshtml";
 }
 @section Head

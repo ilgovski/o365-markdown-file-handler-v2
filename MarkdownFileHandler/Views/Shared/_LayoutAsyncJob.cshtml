@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Markdown Editor</title>
+    <title>@ViewBag.Title - @System.Configuration.ConfigurationManager.AppSettings["sc:Brand"]</title>
     @Styles.Render("~/Content/css")
     @Styles.Render("~/Content/LoadingSpinner.css")
     @Scripts.Render("~/bundles/modernizr")

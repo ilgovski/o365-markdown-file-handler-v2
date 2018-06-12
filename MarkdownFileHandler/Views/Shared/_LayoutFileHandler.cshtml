@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Markdown Editor</title>
+    <title>@ViewBag.Title - @System.Configuration.ConfigurationManager.AppSettings["sc:Brand"]</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/jquery")
@@ -20,7 +20,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-              <div class="navbar-brand">Markdown Editor</div>
+                <div class="navbar-brand">@System.Configuration.ConfigurationManager.AppSettings["sc:Brand"]</div>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
