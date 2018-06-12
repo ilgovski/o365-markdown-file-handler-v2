@@ -120,7 +120,7 @@ namespace MarkdownFileHandler.Utils
                 CachedEntity.LastWrite = DateTime.Now;
 
                 TableOperation insert = TableOperation.InsertOrReplace(CachedEntity);
-                tables.UserTokenCacheTable.Execute(insert);
+                //tables.UserTokenCacheTable.Execute(insert);
                 this.HasStateChanged = false;
 
                 System.Diagnostics.Debug.WriteLine($"Wrote value to persistent cache for {User}");
